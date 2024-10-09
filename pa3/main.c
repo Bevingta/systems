@@ -1,6 +1,13 @@
 #include "fp_analyzer.h"
 
-def main() {
-  printf("Please enter a floating-point number or q to quit.");
+int main(int argc, char **argv) {
+  printf("Please enter a floating-point number or q to quit.\n> ");
+
+  float input;
+
+  while (scanf("%f", &input)) {
+    printf("The number you entered is %.45f\n", input);
+    printf("> ");
+  }
   return EXIT_SUCCESS;
 }
