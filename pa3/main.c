@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "fp_analyzer.h"
 
 def main() {
   printf("Please enter a floating-point number or q to quit.");
