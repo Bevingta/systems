@@ -9,5 +9,6 @@ int main(int argc, char **argv) {
     printf("The number you entered is %.45f\n", input);
     printf("> ");
   }
+  test_print();
   return EXIT_SUCCESS;
 }
