@@ -1,6 +1,7 @@
+#ifndef FP_ANALYZER_H
+#define FP_ANALYZER_H
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 #ifdef DOUBLE
@@ -36,4 +37,12 @@ typedef union {
     Components c;
 } Converter;
 
+void print_bits(UINT_TYPE value, int num_bits);
+void print_components(Converter conv);
+void print_normalized(Converter conv);
+void print_denormalized(Converter conv);
+void print_reconstitution(Converter conv);
 void print_special_values();
+FP_TYPE power_of_2(int exponent);
+
+#endif
