@@ -77,10 +77,10 @@ void print_denormalized(Converter conv) {
                 mantissa_value += power_of_2(-(MANTISSA_BITS - i));
             }
         }
-        
+    printf("Original value:\n");
     printf("(-1)^{%u} x " FORMAT_SPECIFIER " x 2^{1 - %d}\n", conv.c.sign, mantissa_value, BIAS);
     printf("  = %s1 x %.6f x 2^{%d}\n", conv.c.sign ? "-" : "", mantissa_value, 1 - BIAS);
-    printf("  = %s%.6f x 1/%.0f\n", conv.c.sign ? "-1 x " : "", mantissa_value, power_of_2(BIAS - 1));
+    printf("  = %s%.45f x 1/%.0f\n", conv.c.sign ? "-1 x " : "", mantissa_value, power_of_2(BIAS - 1));
     printf("  = ");
     printf(FORMAT_SPECIFIER, conv.f);
     printf("\n");
