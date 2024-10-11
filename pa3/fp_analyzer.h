@@ -11,7 +11,7 @@
 #define EXPONENT_BITS 11
 #define MANTISSA_BITS 52
 #define BIAS 1023
-#define FORMAT_SPECIFIER "%.45lf"
+#define FORMAT_SPECIFIER "%.15lf"
 #define SCANF_SPECIFIER "%lf"
 #else
 #define FP_TYPE float
@@ -19,7 +19,7 @@
 #define EXPONENT_BITS 8
 #define MANTISSA_BITS 23
 #define BIAS 127
-#define FORMAT_SPECIFIER "%.45f"
+#define FORMAT_SPECIFIER "%.6f"
 #define SCANF_SPECIFIER "%f"
 #endif
 

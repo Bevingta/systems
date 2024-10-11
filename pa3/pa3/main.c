@@ -33,13 +33,8 @@ int main(int argc, char *argv[]) {
             break;
         }
         Converter conv;
-        #ifdef DOUBLE
-        if (sscanf(input, "%lf", &conv.f) == 1) {
-            printf("%.6f\n", conv.f);
-        #else
-        if (sscanf(input, "%f", &conv.f) == 1) {
-            printf("%.6f\n", conv.f);
-        #endif
+        if (sscanf(input, SCANF_SPECIFIER, &conv.f) == 1) {
+            printf(FORMAT_SPECIFIER "\n", conv.f);
             print_components(conv);
             print_reconstitution(conv);
         } else {
