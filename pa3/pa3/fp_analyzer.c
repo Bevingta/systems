@@ -58,7 +58,7 @@ void print_normalized(Converter conv) {
     // printing the equation
     printf("(-1)^{%u} x (1 + %.6f) x 2^{%d - %d}\n", conv.c.sign, mantissa_value, conv.c.exponent, BIAS);
     printf("  = %s1 x %.6f x 2^{%d}\n", conv.c.sign ? "-" : "", 1.0 + mantissa_value, true_exponent);
-    printf("  = %s1 x %.6f x %.0f\n", conv.c.sign ? "-" : "", 1.0 + mantissa_value, power_of_2(true_exponent));
+    printf("  = %s%.6f x %.0f\n", conv.c.sign ? "-1 x " : "", 1.0 + mantissa_value, power_of_2(true_exponent));
     printf("  = ");
     printf(FORMAT_SPECIFIER, conv.f);
     printf("\n");
@@ -89,16 +89,17 @@ void print_denormalized(Converter conv) {
 }
 
 void print_reconstitution(Converter conv) {
-    printf("Original value:\n");
     if (conv.c.exponent == 0) {
         print_denormalized(conv);
     } else if (conv.c.exponent == ((1 << EXPONENT_BITS) - 1)) {
+        printf("Original value:\n");
         if (conv.c.mantissa == 0) {
             printf("%sinf\n", conv.c.sign ? "-" : "");
         } else {
             printf("%snan\n", conv.c.sign ? "-" : "");
         }
     } else {
+        printf("Original value:\n");
         print_normalized(conv);
     }
 }

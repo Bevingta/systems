@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
         Converter conv;
         #ifdef DOUBLE
         if (sscanf(input, "%lf", &conv.f) == 1) {
-            printf("%.5f\n", conv.f);
+            printf("%.6f\n", conv.f);
         #else
         if (sscanf(input, "%f", &conv.f) == 1) {
-            printf("%.5f\n", conv.f);
+            printf("%.6f\n", conv.f);
         #endif
             print_components(conv);
             print_reconstitution(conv);
