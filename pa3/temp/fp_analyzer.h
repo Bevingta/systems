@@ -2,17 +2,16 @@
 #define FP_ANALYZER_H
 
 #include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #ifdef DOUBLE
 #define FP_TYPE double
-#define UINT_TYPE unsigned long long
+#define UINT_TYPE unsigned long
 #define EXPONENT_BITS 11
 #define MANTISSA_BITS 52
 #define BIAS 1023
-#define FORMAT_SPECIFIER "%.45lf"
+#define FORMAT_SPECIFIER "%.15lf"
 #define SCANF_SPECIFIER "%lf"
 #else
 #define FP_TYPE float
@@ -20,11 +19,10 @@
 #define EXPONENT_BITS 8
 #define MANTISSA_BITS 23
 #define BIAS 127
-#define FORMAT_SPECIFIER "%.45f"
+#define FORMAT_SPECIFIER "%.6f"
 #define SCANF_SPECIFIER "%f"
 #endif
 
-#define INITIAL_BUFFER_SIZE 256
 #define SIGN_BITS 1
 #define TOTAL_BITS (SIGN_BITS + EXPONENT_BITS + MANTISSA_BITS)
 

@@ -29,6 +29,5 @@ else
     echo "\n======== CORRECT ========\n"
 fi
 
-rm -f output*.txt
 make clean
 
