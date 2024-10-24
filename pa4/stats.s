@@ -65,8 +65,9 @@ sum:
     #movl	%esi, -28(%rbp)         # old: store num locally
 	#movq	%rdx, -40(%rbp)         # old: store mean pointer locally
 
-	movq	$0, -8(%rbp)            # initialize sum to 0
-	
+	#movq	$0, -8(%rbp)            # old: initialize sum to 0
+    movq    $0, %r8                  # initialize r8 to 0	
+
 	#movl	-28(%rbp), %eax         # old: load num from local
 	movl	44(%rbp), %eax          # load num directly from main's frame
 
@@ -85,7 +86,8 @@ sum:
 
 	movl	(%rax), %eax
 	cltq
-	addq	%rax, -8(%rbp)
+	#addq	%rax, -8(%rbp)          # old: move rax to result
+    addq    %rax, %r8               # move rax to r8
 
 	#addq	$4, -24(%rbp)           # old: add 4 to local val
     addq    $4, %rdi                # add 4 to val from main
@@ -97,8 +99,10 @@ sum:
 	cmpq	-16(%rbp), %rax
 	jb	.L7
 	pxor	%xmm0, %xmm0
-	cvtsi2sdq	-8(%rbp), %xmm0
-	pxor	%xmm1, %xmm1
+	#cvtsi2sdq	-8(%rbp), %xmm0    # old:
+	cvtsi2sdq   %r8, %xmm0         # new
+
+    pxor	%xmm1, %xmm1
 
 	#cvtsi2sdl	-28(%rbp), %xmm1     # old: load num from local
 	cvtsi2sdl	44(%rbp), %xmm1      # load num directly from main's frame
@@ -109,7 +113,8 @@ sum:
 	leaq	32(%rbp), %rax          # load address of mean directly from main's frame
 
 	movsd	%xmm0, (%rax)
-	movq	-8(%rbp), %rax
+	#movq	-8(%rbp), %rax
+    movq    %r8, %rax
 	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
@@ -193,7 +198,7 @@ main:
 	movl	%ecx, %esi
 	movq	%rax, %rdi
 	call	sum
-	movq	%rax, -24(%rbp)
+    #imovq	%rax, -24(%rbp)     # old: moved result to the spot in rbp
 	movq	-48(%rbp), %rcx
 	movl	-36(%rbp), %edx
 	movq	-16(%rbp), %rax
@@ -203,7 +208,7 @@ main:
 	call	mean_squared_error
 	movq	%xmm0, %rax
 	movq	%rax, -32(%rbp)
-	movq	-24(%rbp), %rax
+	#movq	-24(%rbp), %rax     # old: dont need anymore
 	movq	%rax, %rsi
 	movl	$.LC5, %edi
 	movl	$0, %eax
