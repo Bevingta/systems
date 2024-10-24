@@ -70,6 +70,7 @@ sum:
 
 	#movl	-28(%rbp), %eax         # old: load num from local
 	movl	44(%rbp), %eax          # load num directly from main's frame
+    #movl    %esi, %eax              # accessing num from the register
 
 	cltq
 	leaq	0(,%rax,4), %rdx
@@ -78,13 +79,15 @@ sum:
     movq    %rdi, %rax              # use RDI directly
 
     addq	%rdx, %rax                 
-	movq	%rax, -16(%rbp)
+	#movq	%rax, -16(%rbp)         # old: make stack space for end
+    movq    %rax, %r9               # move data to r9 instead
 	jmp	.L6
 .L7:
 	#movq	-24(%rbp), %rax         # old: load val from local
     movq    %rdi, %rax              # load val direct from RDI
+	#movl	(%rax), %eax
+    movl    (%rdi), %eax            # new: experiment
 
-	movl	(%rax), %eax
 	cltq
 	#addq	%rax, -8(%rbp)          # old: move rax to result
     addq    %rax, %r8               # move rax to r8
@@ -94,9 +97,12 @@ sum:
 
 .L6:
 	#movq	-24(%rbp), %rax         # old: load val from local
-    movq    %rdi, %rax              # use rdi directly    
+    movq    %rdi, %rax              # use rdi directly (commented out for some reason)   
 
-	cmpq	-16(%rbp), %rax
+	#cmpq	-16(%rbp), %rax         # old: using the stack reference
+    cmpq    %r9, %rax               # using r9
+    #cmpq    %r9, %rdi               #r9 with rdi
+
 	jb	.L7
 	pxor	%xmm0, %xmm0
 	#cvtsi2sdq	-8(%rbp), %xmm0    # old:
@@ -106,6 +112,7 @@ sum:
 
 	#cvtsi2sdl	-28(%rbp), %xmm1     # old: load num from local
 	cvtsi2sdl	44(%rbp), %xmm1      # load num directly from main's frame
+    #cvtsi2sdl    %esi, %xmm1           # new: use num parameter directly
 
 	divsd	%xmm1, %xmm0
 
@@ -198,7 +205,7 @@ main:
 	movl	%ecx, %esi
 	movq	%rax, %rdi
 	call	sum
-    #imovq	%rax, -24(%rbp)     # old: moved result to the spot in rbp
+    movq	%rax, -24(%rbp)     # old: moved result to the spot in rbp
 	movq	-48(%rbp), %rcx
 	movl	-36(%rbp), %edx
 	movq	-16(%rbp), %rax
@@ -208,7 +215,7 @@ main:
 	call	mean_squared_error
 	movq	%xmm0, %rax
 	movq	%rax, -32(%rbp)
-	#movq	-24(%rbp), %rax     # old: dont need anymore
+	movq	-24(%rbp), %rax     # old: dont need anymore
 	movq	%rax, %rsi
 	movl	$.LC5, %edi
 	movl	$0, %eax
