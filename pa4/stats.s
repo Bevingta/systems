@@ -59,11 +59,13 @@ sum:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
-	movq	%rdi, -24(%rbp)
-	movl	%esi, -28(%rbp)
-	movq	%rdx, -40(%rbp)
-	movq	$0, -8(%rbp)
-	movl	-28(%rbp), %eax
+	movq	%rdi, -24(%rbp)         # store values pointer copy we'll modify
+	#movl	%esi, -28(%rbp)         # old: store num locally
+	#movq	%rdx, -40(%rbp)         # old: store mean pointer locally
+	movq	$0, -8(%rbp)            # initialize sum to 0
+	
+	#movl	-28(%rbp), %eax         # old: load num from local
+	movl	44(%rbp), %eax          # load num directly from main's frame
 	cltq
 	leaq	0(,%rax,4), %rdx
 	movq	-24(%rbp), %rax
@@ -83,9 +85,11 @@ sum:
 	pxor	%xmm0, %xmm0
 	cvtsi2sdq	-8(%rbp), %xmm0
 	pxor	%xmm1, %xmm1
-	cvtsi2sdl	-28(%rbp), %xmm1
+	#cvtsi2sdl	-28(%rbp), %xmm1    # old: load num from local
+	cvtsi2sdl	44(%rbp), %xmm1      # load num directly from main's frame
 	divsd	%xmm1, %xmm0
-	movq	-40(%rbp), %rax
+	#movq	-40(%rbp), %rax         # old: load mean pointer from local
+	leaq	32(%rbp), %rax          # load address of mean directly from main's frame
 	movsd	%xmm0, (%rax)
 	movq	-8(%rbp), %rax
 	popq	%rbp
