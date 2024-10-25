@@ -54,10 +54,10 @@ mean_squared_error:
 sum:
 .LFB7:
 	.cfi_startproc
-	pushq	%rbp
+	#pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
-	movq	%rsp, %rbp
+	#movq	%rsp, %rbp
     .cfi_def_cfa_register 6
 	
     #movq	%rdi, -24(%rbp)         # old: store ref to vals	
@@ -68,8 +68,8 @@ sum:
     movq    $0, %r8                  # initialize r8 to 0	
 
 	#movl	-28(%rbp), %eax         # old: load num from local
-	movl	44(%rbp), %eax          # load num directly from main's frame
-    #movl    %esi, %eax              # accessing num from the register
+	#movl	44(%rbp), %eax          # load num directly from main's frame
+    movl    -36(%rbp), %eax              # accessing num from the register
 
 	cltq
 	leaq	0(,%rax,4), %rdx
@@ -110,21 +110,23 @@ sum:
     pxor	%xmm1, %xmm1
 
 	#cvtsi2sdl	-28(%rbp), %xmm1     # old: load num from local
-	cvtsi2sdl	44(%rbp), %xmm1      # load num directly from main's frame
+	cvtsi2sdl	-36(%rbp), %xmm1      # load num directly from main's frame
     #cvtsi2sdl    %esi, %xmm1           # new: use num parameter directly
 
 	divsd	%xmm1, %xmm0
 
 	#movq	-40(%rbp), %rax         # old: load mean pointer from local
-	leaq	32(%rbp), %rax          # load address of mean directly from main's frame
+	#leaq	32(%rbp), %rax          # load address of mean directly from main's frame
+    leaq    -48(%rbp), %rax
 
 	movsd	%xmm0, (%rax)
 	
     #movq	-8(%rbp), %rax          # old: move result to return register
     #movq    %r8, %rax               # old: move r8 to return register
-    movq    %r8, 56(%rbp)          # new: store result directly to main's stack frame
-	
-    popq	%rbp
+    #movq    %r8, 56(%rbp)          # new: store result directly to main's stack frame
+    movq    %r8, -24(%rbp)	
+
+    #popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
@@ -201,10 +203,10 @@ main:
 	movl	-36(%rbp), %eax
 	cmpl	%eax, -4(%rbp)
 	jl	.L11
-	movl	-36(%rbp), %ecx
-	leaq	-48(%rbp), %rdx
+	#movl	-36(%rbp), %ecx         # old: creation of variable
+	#leaq	-48(%rbp), %rdx         # old: creation of variable
 	movq	-16(%rbp), %rax
-	movl	%ecx, %esi
+	#movl	%ecx, %esi
 	movq	%rax, %rdi
 	call	sum
     #movq	%rax, -24(%rbp)         # old: moved result to the spot in rbp
