@@ -1,4 +1,4 @@
-.file	"stats.c"
+	.file	"stats.c"
 	.text
 	.globl	mean_squared_error
 	.type	mean_squared_error, @function
@@ -61,10 +61,11 @@ sum:
     .cfi_def_cfa_register 6
 	
     #movq	%rdi, -24(%rbp)         # old: store ref to vals	
+
     #movl	%esi, -28(%rbp)         # old: store num locally
 	#movq	%rdx, -40(%rbp)         # old: store mean pointer locally
+
 	#movq	$0, -8(%rbp)            # old: initialize sum to 0
-    
     movq    $0, %r8                  # initialize r8 to 0	
 
 	#movl	-28(%rbp), %eax         # old: load num from local
@@ -83,7 +84,7 @@ sum:
 	jmp	.L6
 .L7:
 	#movq	-24(%rbp), %rax         # old: load val from local
-    #movq    %rdi, %rax              # load val direct from RDI
+    movq    %rdi, %rax              # load val direct from RDI
 	#movl	(%rax), %eax
     movl    (%rdi), %eax            # new: experiment
 
@@ -96,11 +97,11 @@ sum:
 
 .L6:
 	#movq	-24(%rbp), %rax         # old: load val from local
-    movq    %rdi, %rax              # use rdi directly    
+    movq    %rdi, %rax              # use rdi directly (commented out for some reason)   
 
 	#cmpq	-16(%rbp), %rax         # old: using the stack reference
-    #cmpq    %r9, %rax               # using r9
-    cmpq    %r9, %rdi               # r9 with rdi
+    cmpq    %r9, %rax               # using r9
+    #cmpq    %r9, %rdi               #r9 with rdi
 
 	jb	.L7
 	pxor	%xmm0, %xmm0
@@ -119,12 +120,9 @@ sum:
 	leaq	32(%rbp), %rax          # load address of mean directly from main's frame
 
 	movsd	%xmm0, (%rax)
-	
-    #movq	-8(%rbp), %rax          # old: move result to return register
-    #movq    %r8, %rax               # old: move r8 to return register
-    movq    %r8, 56(%rbp)          # new: store result directly to main's stack frame
-	
-    popq	%rbp
+	#movq	-8(%rbp), %rax
+    movq    %r8, %rax
+	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
@@ -207,7 +205,7 @@ main:
 	movl	%ecx, %esi
 	movq	%rax, %rdi
 	call	sum
-    #movq	%rax, -24(%rbp)         # old: moved result to the spot in rbp
+    movq	%rax, -24(%rbp)     # old: moved result to the spot in rbp
 	movq	-48(%rbp), %rcx
 	movl	-36(%rbp), %edx
 	movq	-16(%rbp), %rax
@@ -217,7 +215,7 @@ main:
 	call	mean_squared_error
 	movq	%xmm0, %rax
 	movq	%rax, -32(%rbp)
-	movq	-24(%rbp), %rax
+	movq	-24(%rbp), %rax     # old: dont need anymore
 	movq	%rax, %rsi
 	movl	$.LC5, %edi
 	movl	$0, %eax
@@ -240,4 +238,4 @@ main:
 .LFE8:
 	.size	main, .-main
 	.ident	"GCC: (GNU) 11.4.1 20231218 (Red Hat 11.4.1-3)"
-	.section	.note.GNU-stack,"",@progbits	
+	.section	.note.GNU-stack,"",@progbits
