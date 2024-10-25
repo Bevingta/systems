@@ -1,3 +1,6 @@
+# Drew Bevington, Gleidson De Sousa
+# bevingta@bc.edu, desousag@bc.edu
+
 .file	"stats.c"
 	.text
 	.globl	mean_squared_error
@@ -54,79 +57,31 @@ mean_squared_error:
 sum:
 .LFB7:
 	.cfi_startproc
-	#pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
-	#movq	%rsp, %rbp
     .cfi_def_cfa_register 6
-	
-    #movq	%rdi, -24(%rbp)         # old: store ref to vals	
-    #movl	%esi, -28(%rbp)         # old: store num locally
-	#movq	%rdx, -40(%rbp)         # old: store mean pointer locally
-	#movq	$0, -8(%rbp)            # old: initialize sum to 0
-    
     movq    $0, %r8                  # initialize r8 to 0	
-
-	#movl	-28(%rbp), %eax         # old: load num from local
-	#movl	44(%rbp), %eax          # load num directly from main's frame
-    movl    -36(%rbp), %eax              # accessing num from the register
-
+    movl    -36(%rbp), %eax         # accessing num from the register
 	cltq
-	leaq	0(,%rax,4), %rdx
-
-	#movq	-24(%rbp), %rax         # old: load val from local
-    movq    %rdi, %rax              # use RDI directly
-
-    addq	%rdx, %rax                 
-	#movq	%rax, -16(%rbp)         # old: make stack space for end
-    movq    %rax, %r9               # move data to r9 instead
+    leaq (%rdi,%rax,4), %r9
 	jmp	.L6
 .L7:
-	#movq	-24(%rbp), %rax         # old: load val from local
-    #movq    %rdi, %rax              # load val direct from RDI
-	#movl	(%rax), %eax
     movl    (%rdi), %eax            # new: experiment
-
 	cltq
-	#addq	%rax, -8(%rbp)          # old: move rax to result
     addq    %rax, %r8               # move rax to r8
-
-	#addq	$4, -24(%rbp)           # old: add 4 to local val
     addq    $4, %rdi                # add 4 to val from main
-
 .L6:
-	#movq	-24(%rbp), %rax         # old: load val from local
     movq    %rdi, %rax              # use rdi directly    
-
-	#cmpq	-16(%rbp), %rax         # old: using the stack reference
-    #cmpq    %r9, %rax               # using r9
     cmpq    %r9, %rdi               # r9 with rdi
-
 	jb	.L7
 	pxor	%xmm0, %xmm0
-	#cvtsi2sdq	-8(%rbp), %xmm0    # old:
 	cvtsi2sdq   %r8, %xmm0         # new
-
     pxor	%xmm1, %xmm1
-
-	#cvtsi2sdl	-28(%rbp), %xmm1     # old: load num from local
 	cvtsi2sdl	-36(%rbp), %xmm1      # load num directly from main's frame
-    #cvtsi2sdl    %esi, %xmm1           # new: use num parameter directly
-
 	divsd	%xmm1, %xmm0
-
-	#movq	-40(%rbp), %rax         # old: load mean pointer from local
-	#leaq	32(%rbp), %rax          # load address of mean directly from main's frame
     leaq    -48(%rbp), %rax
-
 	movsd	%xmm0, (%rax)
-	
-    #movq	-8(%rbp), %rax          # old: move result to return register
-    #movq    %r8, %rax               # old: move r8 to return register
-    #movq    %r8, 56(%rbp)          # new: store result directly to main's stack frame
     movq    %r8, -24(%rbp)	
-
-    #popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
@@ -167,8 +122,7 @@ main:
 	movl	$.LC2, %edi
 	movl	$0, %eax
 	call	printf
-	leaq	-36(%rbp), %rax
-	movq	%rax, %rsi
+    leaq    -36(%rbp), %rsi
 	movl	$.LC3, %edi
 	movl	$0, %eax
 	call	__isoc99_scanf
@@ -203,13 +157,9 @@ main:
 	movl	-36(%rbp), %eax
 	cmpl	%eax, -4(%rbp)
 	jl	.L11
-	#movl	-36(%rbp), %ecx         # old: creation of variable
-	#leaq	-48(%rbp), %rdx         # old: creation of variable
 	movq	-16(%rbp), %rax
-	#movl	%ecx, %esi
 	movq	%rax, %rdi
 	call	sum
-    #movq	%rax, -24(%rbp)         # old: moved result to the spot in rbp
 	movq	-48(%rbp), %rcx
 	movl	-36(%rbp), %edx
 	movq	-16(%rbp), %rax
