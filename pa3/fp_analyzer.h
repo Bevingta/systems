@@ -1,11 +1,14 @@
+#ifndef FP_ANALYZER_H
+#define FP_ANALYZER_H
+
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #ifdef DOUBLE
 #define FP_TYPE double
-#define UINT_TYPE unsigned long
+#define UINT_TYPE unsigned long long
 #define EXPONENT_BITS 11
 #define MANTISSA_BITS 52
 #define BIAS 1023
@@ -21,6 +24,7 @@
 #define SCANF_SPECIFIER "%f"
 #endif
 
+#define INITIAL_BUFFER_SIZE 256
 #define SIGN_BITS 1
 #define TOTAL_BITS (SIGN_BITS + EXPONENT_BITS + MANTISSA_BITS)
 
@@ -36,4 +40,12 @@ typedef union {
     Components c;
 } Converter;
 
+void print_bits(UINT_TYPE value, int num_bits);
+void print_components(Converter conv);
+void print_normalized(Converter conv);
+void print_denormalized(Converter conv);
+void print_reconstitution(Converter conv);
 void print_special_values();
+FP_TYPE power_of_2(int exponent);
+
+#endif
