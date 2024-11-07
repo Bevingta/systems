@@ -40,15 +40,30 @@ void transpose(const int dim, int * const m) {
 }
 
 void multiply_transpose(const int dim, const int * const a, const int * const b_t, int * const c) {
-  // going to multiply a[0] by b_t[0], a[1] by b_t[1], etc.
+
+  print(dim, a);
+  print(dim, b_t);
+
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
       c[i * dim + j] = 0;
       for (int k = 0; k < dim; ++k) {
-        c[i * dim + j] += a[i * dim + k] * b_t[i * dim + k];
+        c[i * dim + j] += a[i * dim + k] * b_t[j * dim + k];  // Changed this line
       }
     }
   }  
+}
+
+int verify(const int dim, const int * const c1, const int * const c2) {
+  //verify the two solution matrices are the same
+  for (int i = 0; i < dim; ++i) {
+    for (int j = 0; j < dim; ++j) {
+      if (c1[i * dim + j] != c2[i * dim + j]) {
+        return 0;
+      }
+    }
+  }
+  return 1;
 }
 
 int main(int argc, char ** argv) {
@@ -67,14 +82,20 @@ int main(int argc, char ** argv) {
     
     printf("A: \n");
     print(DIM, a);
-    printf("Transposed: \n");
-    transpose(DIM, a);
  
     printf("B: \n");
     print(DIM, b);
     printf("Transposed: \n");
     transpose(DIM, b);
+
     multiply_transpose(DIM, a, b, c);
+
+    int result_verification = verify(DIM, c, d);
+    if (result_verification == 1) {
+      printf("The two matrices are the same\n");
+    } else {
+      printf("The two matrices are not the same\n");
+    }
 
     printf("C: \n");
     print(DIM, c);
