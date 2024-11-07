@@ -41,9 +41,6 @@ void transpose(const int dim, int * const m) {
 
 void multiply_transpose(const int dim, const int * const a, const int * const b_t, int * const c) {
 
-  print(dim, a);
-  print(dim, b_t);
-
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
       c[i * dim + j] = 0;
@@ -66,6 +63,12 @@ int verify(const int dim, const int * const c1, const int * const c2) {
   return 1;
 }
 
+void init(const int dim, int * const m) {
+    for (int i = 0; i < DIM * DIM; ++i) {
+        m[i] = rand() % MAX_VALUE;
+    }
+}
+
 int main(int argc, char ** argv) {
     int * a = (int *)calloc(DIM * DIM, sizeof(int));
     int * b = (int *)calloc(DIM * DIM, sizeof(int));
@@ -73,10 +76,8 @@ int main(int argc, char ** argv) {
     //remove in submission
     int * d = (int *)calloc(DIM * DIM, sizeof(int));
 
-    for (int i = 0; i < DIM * DIM; ++i) {
-        a[i] = rand() % MAX_VALUE;
-        b[i] = rand() % MAX_VALUE;
-    }
+    init(DIM, a);
+    init(DIM, b);
 
     multiply(DIM, a, b, d);
     
@@ -96,10 +97,4 @@ int main(int argc, char ** argv) {
     } else {
       printf("The two matrices are not the same\n");
     }
-
-    printf("C: \n");
-    print(DIM, c);
-
-    printf("D: \n");
-    print(DIM, d);
 }
