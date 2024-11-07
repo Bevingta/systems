@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define DIM 3
+#define MIN_DIM_POWER 3
+#define MAX_DIM_POWER 10
 #define MAX_VALUE 20
 
 void print(const int dim, const int * const m) {
@@ -18,7 +19,7 @@ void print(const int dim, const int * const m) {
     printf("\n");
 }
 
-void multiply(const int dim, const int * const a, const int * const b, int * const c) {
+void multiply(const int dim, const int * const a, int * const b, int * const c) {
     for (int i = 0; i < dim; ++i) {
         for (int j = 0; j < dim; ++j) {
             c[i * dim + j] = 0;
@@ -64,7 +65,7 @@ int verify(const int dim, const int * const c1, const int * const c2) {
 }
 
 void init(const int dim, int * const m) {
-    for (int i = 0; i < DIM * DIM; ++i) {
+    for (int i = 0; i < dim * dim; ++i) {
         m[i] = rand() % MAX_VALUE;
     }
 }
@@ -74,43 +75,63 @@ void transpose_and_multiply(const int dim, const int * const a, int * const b, i
   multiply_transpose(dim, a, b, c);
 }
 
-void run_test(const int dim) {
-    int * a = (int *)calloc(DIM * DIM, sizeof(int));
-    int * b = (int *)calloc(DIM * DIM, sizeof(int));
-    int * c = (int *)calloc(DIM * DIM, sizeof(int));
-    //remove in submission
-    int * d = (int *)calloc(DIM * DIM, sizeof(int));
-
-    init(DIM, a);
-    init(DIM, b);
-
-    multiply(DIM, a, b, d);
-    
-    transpose_and_multiply(DIM, a, b, c);
-
-    int result_verification = verify(DIM, c, d);
-    if (result_verification == 1) {
-      printf("The two matrices are the same\n");
-    } else {
-      printf("The two matrices are not the same\n");
-    }
-  free (a);
-  free (b);
-  free (c);
-  free (d);
-}
-
 struct timeval run_and_time(
     void (* mult_func)(const int, const int * const, int * const, int * const),
     const int dim,
     const int * const a,
     int * const b,
     int * const c) {
-  
-    
 
+    struct timeval start, end, difference;
+
+    gettimeofday(&start, NULL);
+
+    mult_func(dim, a, b, c);
+
+    gettimeofday(&end, NULL);
+
+    timersub(&end, &start, &difference);
+
+    return difference;
+} 
+
+void run_test(const int dim) {
+    int * a = (int *)calloc(dim * dim, sizeof(int));
+    int * b = (int *)calloc(dim * dim, sizeof(int));
+    int * c = (int *)calloc(dim * dim, sizeof(int));
+    //remove in submission
+    int * d = (int *)calloc(dim * dim, sizeof(int));
+
+    printf("Testing on %d-by-%d square matrices\n", dim, dim);
+
+    init(dim, a);
+    init(dim, b);
+
+    struct timeval mult_time = run_and_time(multiply, dim, a, b, d);
+    struct timeval transpose_mult_time = run_and_time(transpose_and_multiply, dim, a, b, c);
+
+    int result_verification = verify(dim, c, d);
+    if (result_verification == 1) {
+      printf("Result Agree\n");
+    } else {
+      printf("Results do not agree\n");
+    }
+
+    printf("Standard Multiplication: %ld seconds, %d microseconds\n", mult_time.tv_sec, mult_time.tv_usec);
+    printf("Multiplication with Transpose: %ld seconds, %d microseconds\n", transpose_mult_time.tv_sec, transpose_mult_time.tv_usec);
+    free (a);
+    free (b);
+    free (c);
+    free (d);
 }
 
-int main(int argc, char ** argv) {
-    run_test(DIM);
+int main() {
+  
+  for (int power = MIN_DIM_POWER; power <= MAX_DIM_POWER; power++) {
+    run_test(1 << power);
+    printf("\n");
+  }
+
+
+  return EXIT_SUCCESS;
 }
