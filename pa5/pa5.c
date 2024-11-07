@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #define DIM 3
 #define MAX_VALUE 20
@@ -93,9 +94,23 @@ void run_test(const int dim) {
     } else {
       printf("The two matrices are not the same\n");
     }
+  free (a);
+  free (b);
+  free (c);
+  free (d);
+}
+
+struct timeval run_and_time(
+    void (* mult_func)(const int, const int * const, int * const, int * const),
+    const int dim,
+    const int * const a,
+    int * const b,
+    int * const c) {
+  
+    
+
 }
 
 int main(int argc, char ** argv) {
     run_test(DIM);
-
 }
