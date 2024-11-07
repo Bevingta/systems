@@ -4,6 +4,16 @@
 #define DIM 4
 #define MAX_VALUE 20
 
+void transpose(const int dim, int * const m) {
+    for (int i = 0; i < dim; ++i) {
+        for (int j = 0; j < i; ++j) {
+	    int temp = m[i * dim + j];
+	    m[i * dim + j] = m[j * dim + i];
+	    m[j * dim + i] = temp;
+	}
+    }
+}
+
 void multiply(const int dim, const int * const a, const int * const b, int * const c) {
     for (int i = 0; i < dim; ++i) {
         for (int j = 0; j < dim; ++j) {
@@ -40,4 +50,16 @@ int main(int argc, char ** argv) {
  
     printf("B: \n");
     print(DIM, b);
+    
+    multiply(DIM, a, b, c);
+
+    printf("MATRIX C:\n");
+    print(DIM, c);
+
+    free(a);
+    free(b);
+    free(c);
+
+    return 0;
+
 }
