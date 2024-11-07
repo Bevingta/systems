@@ -36,7 +36,6 @@ void transpose(const int dim, int * const m) {
       m[j * dim + i] = temp;
     }
   }
-  print(dim, m);
 }
 
 void multiply_transpose(const int dim, const int * const a, const int * const b_t, int * const c) {
@@ -69,6 +68,11 @@ void init(const int dim, int * const m) {
     }
 }
 
+void transpose_and_multiply(const int dim, const int * const a, int * const b, int * const c) {
+  transpose(dim, b);
+  multiply_transpose(dim, a, b, c);
+}
+
 int main(int argc, char ** argv) {
     int * a = (int *)calloc(DIM * DIM, sizeof(int));
     int * b = (int *)calloc(DIM * DIM, sizeof(int));
@@ -81,15 +85,7 @@ int main(int argc, char ** argv) {
 
     multiply(DIM, a, b, d);
     
-    printf("A: \n");
-    print(DIM, a);
- 
-    printf("B: \n");
-    print(DIM, b);
-    printf("Transposed: \n");
-    transpose(DIM, b);
-
-    multiply_transpose(DIM, a, b, c);
+    transpose_and_multiply(DIM, a, b, c);
 
     int result_verification = verify(DIM, c, d);
     if (result_verification == 1) {
