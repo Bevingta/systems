@@ -63,16 +63,14 @@ int main(int argc, char ** argv) {
     printf("B: \n");
     print(DIM, b);
     
+    multiply(DIM, a, b, c1);
+    printf("C:\n");
+    print(DIM, c1);
+
     transpose(DIM, b);
 
     printf("B_T:\n");
     print(DIM, b);
-
-    multiply(DIM, a, b, c1);
-    
-
-    printf("C:\n");
-    print(DIM, c1);
 
     multiply_transpose(DIM, a, b, c2);
     printf("C Transposed:\n");
