@@ -73,7 +73,7 @@ void transpose_and_multiply(const int dim, const int * const a, int * const b, i
   multiply_transpose(dim, a, b, c);
 }
 
-int main(int argc, char ** argv) {
+void run_test(const int dim) {
     int * a = (int *)calloc(DIM * DIM, sizeof(int));
     int * b = (int *)calloc(DIM * DIM, sizeof(int));
     int * c = (int *)calloc(DIM * DIM, sizeof(int));
@@ -93,4 +93,9 @@ int main(int argc, char ** argv) {
     } else {
       printf("The two matrices are not the same\n");
     }
+}
+
+int main(int argc, char ** argv) {
+    run_test(DIM);
+
 }
