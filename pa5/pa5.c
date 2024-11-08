@@ -1,40 +1,13 @@
+// Andrew Bevington / Gleidson De Sousa
+// bevingta@bc.edu  / desousag@bc.edu
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
-#define DIM 4
+#define MIN_DIM_POWER 3
+#define MAX_DIM_POWER 10
 #define MAX_VALUE 20
-
-void transpose(const int dim, int * const m) {
-    for (int i = 0; i < dim; ++i) {
-        for (int j = 0; j < i; ++j) {
-	        int temp = m[i * dim + j];
-	        m[i * dim + j] = m[j * dim + i];
-	        m[j * dim + i] = temp;
-	    }  
-    }
-}
-
-void multiply(const int dim, const int * const a, const int * const b, int * const c) {
-    for (int i = 0; i < dim; ++i) {
-        for (int j = 0; j < dim; ++j) {
-	        c[i * dim + j] = 0;
-	        for (int k = 0; k < dim; ++k) {
-	            c[i * dim + j] += a[i * dim + k] * b[k * dim + j];
-	        }
-	    }
-    }
-}
-
-void multiply_transpose(const int dim, const int * const a, const int * const b_t, int * const c) {
-    for (int i = 0; i < dim; ++i) {
-        for (int j = 0; j < dim; ++j) {
-                c[i * dim + j] = 0;
-            for (int k = 0; k < dim; ++k) {
-                c[i * dim + j] += a[i * dim + k] * b_t[j * dim + k];
-            }
-        }
-    }
-}
 
 void print(const int dim, const int * const m) {
     for (int i = 0; i < dim; ++i) {
@@ -46,41 +19,119 @@ void print(const int dim, const int * const m) {
     printf("\n");
 }
 
-int main(int argc, char ** argv) {
-    int *a = (int *)calloc(DIM * DIM, sizeof(int));
-    int *b = (int *)calloc(DIM * DIM, sizeof(int));
-    int *c1 = (int *)calloc(DIM * DIM, sizeof(int));
-    int *c2 = (int *)calloc(DIM * DIM, sizeof(int));
-
-    for (int i = 0; i < DIM * DIM; ++i) {
-        a[i] = rand() % MAX_VALUE;
-	    b[i] = rand() % MAX_VALUE;
+void multiply(const int dim, const int * const a, int * const b, int * const c) {
+    for (int i = 0; i < dim; ++i) {
+        for (int j = 0; j < dim; ++j) {
+            c[i * dim + j] = 0;
+            for (int k = 0; k < dim; ++k) {
+                c[i * dim + j] += a[i * dim + k] * b[k * dim + j];
+            }
+        }
     }
-    
-    printf("A: \n");
-    print(DIM, a);
- 
-    printf("B: \n");
-    print(DIM, b);
-    
-    multiply(DIM, a, b, c1);
-    printf("C:\n");
-    print(DIM, c1);
+}
 
-    transpose(DIM, b);
+void transpose(const int dim, int * const m) {
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < i; j++) {
+      int temp = m[i * dim + j];
+      m[i * dim + j] = m[j * dim + i];
+      m[j * dim + i] = temp;
+    }
+  }
+}
 
-    printf("B_T:\n");
-    print(DIM, b);
+void multiply_transpose(const int dim, const int * const a, const int * const b_t, int * const c) {
 
-    multiply_transpose(DIM, a, b, c2);
-    printf("C Transposed:\n");
-    print(DIM, c2);
+  for (int i = 0; i < dim; ++i) {
+    for (int j = 0; j < dim; ++j) {
+      c[i * dim + j] = 0;
+      for (int k = 0; k < dim; ++k) {
+        c[i * dim + j] += a[i * dim + k] * b_t[j * dim + k];  // Changed this line
+      }
+    }
+  }  
+}
 
-    free(a);
-    free(b);
-    free(c1);
-    free(c2);
+int verify(const int dim, const int * const c1, const int * const c2) {
+  //verify the two solution matrices are the same
+  for (int i = 0; i < dim; ++i) {
+    for (int j = 0; j < dim; ++j) {
+      if (c1[i * dim + j] != c2[i * dim + j]) {
+        return 0;
+      }
+    }
+  }
+  return 1;
+}
 
-    return 0;
+void init(const int dim, int * const m) {
+    for (int i = 0; i < dim * dim; ++i) {
+        m[i] = rand() % MAX_VALUE;
+    }
+}
 
+void transpose_and_multiply(const int dim, const int * const a, int * const b, int * const c) {
+  transpose(dim, b);
+  multiply_transpose(dim, a, b, c);
+}
+
+struct timeval run_and_time(
+    void (* mult_func)(const int, const int * const, int * const, int * const),
+    const int dim,
+    const int * const a,
+    int * const b,
+    int * const c) {
+
+    struct timeval start, end, difference;
+
+    gettimeofday(&start, NULL);
+
+    mult_func(dim, a, b, c);
+
+    gettimeofday(&end, NULL);
+
+    timersub(&end, &start, &difference);
+
+    return difference;
+} 
+
+void run_test(const int dim) {
+    int * a = (int *)calloc(dim * dim, sizeof(int));
+    int * b = (int *)calloc(dim * dim, sizeof(int));
+    int * c = (int *)calloc(dim * dim, sizeof(int));
+    //remove in submission
+    int * d = (int *)calloc(dim * dim, sizeof(int));
+
+    printf("Testing on %d-by-%d square matrices\n", dim, dim);
+
+    init(dim, a);
+    init(dim, b);
+
+    struct timeval mult_time = run_and_time(multiply, dim, a, b, d);
+    struct timeval transpose_mult_time = run_and_time(transpose_and_multiply, dim, a, b, c);
+
+    int result_verification = verify(dim, c, d);
+    if (result_verification == 1) {
+      printf("Result Agree\n");
+    } else {
+      printf("Results do not agree\n");
+    }
+
+    printf("Standard Multiplication: %ld seconds, %ld microseconds\n", mult_time.tv_sec, mult_time.tv_usec);
+    printf("Multiplication with Transpose: %ld seconds, %ld microseconds\n", transpose_mult_time.tv_sec, transpose_mult_time.tv_usec);
+    free (a);
+    free (b);
+    free (c);
+    free (d);
+}
+
+int main() {
+  
+  for (int power = MIN_DIM_POWER; power <= MAX_DIM_POWER; power++) {
+    run_test(1 << power);
+    printf("\n");
+  }
+
+
+  return EXIT_SUCCESS;
 }
