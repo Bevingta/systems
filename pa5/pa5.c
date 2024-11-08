@@ -1,6 +1,8 @@
 // Andrew Bevington / Gleidson De Sousa
 // bevingta@bc.edu  / desousag@bc.edu
 
+#define _DEFAULT_SOURCE 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -46,14 +48,13 @@ void multiply_transpose(const int dim, const int * const a, const int * const b_
     for (int j = 0; j < dim; ++j) {
       c[i * dim + j] = 0;
       for (int k = 0; k < dim; ++k) {
-        c[i * dim + j] += a[i * dim + k] * b_t[j * dim + k];  // Changed this line
+        c[i * dim + j] += a[i * dim + k] * b_t[j * dim + k];  
       }
     }
   }  
 }
 
 int verify(const int dim, const int * const c1, const int * const c2) {
-  //verify the two solution matrices are the same
   for (int i = 0; i < dim; ++i) {
     for (int j = 0; j < dim; ++j) {
       if (c1[i * dim + j] != c2[i * dim + j]) {
@@ -99,7 +100,6 @@ void run_test(const int dim) {
     int * a = (int *)calloc(dim * dim, sizeof(int));
     int * b = (int *)calloc(dim * dim, sizeof(int));
     int * c = (int *)calloc(dim * dim, sizeof(int));
-    //remove in submission
     int * d = (int *)calloc(dim * dim, sizeof(int));
 
     printf("Testing on %d-by-%d square matrices\n", dim, dim);
@@ -117,8 +117,8 @@ void run_test(const int dim) {
       printf("Results do not agree\n");
     }
 
-    printf("Standard Multiplication: %ld seconds, %d microseconds\n", mult_time.tv_sec, mult_time.tv_usec);
-    printf("Multiplication with Transpose: %ld seconds, %d microseconds\n", transpose_mult_time.tv_sec, transpose_mult_time.tv_usec);
+    printf("Standard Multiplication: %ld seconds, %d microseconds\n", mult_time.tv_sec, (int)mult_time.tv_usec);
+    printf("Multiplication with Transpose: %ld seconds, %d microseconds\n", transpose_mult_time.tv_sec, (int)transpose_mult_time.tv_usec);
     free (a);
     free (b);
     free (c);
