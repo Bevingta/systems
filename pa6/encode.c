@@ -3,20 +3,36 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "encode.h"
 
+//returns the number of set bits in input
 unsigned char ones(unsigned char input) {
-    return 0;
+    //get the number of set bits in input
+    unsigned char count = 0;
+    while (input) {
+        count += input & 1;
+        input >>= 1;
+    }
+    return count;
 }
 
+// returns an encrypted version of plain,with the 7 bits rotated count positions to the left
 unsigned char rotate(unsigned char plain, const unsigned char count) {
-    return 0;
+    //rotate the bits of plain count positions to the left
+    return (plain << count) | (plain >> (7 - count));
 }
 
+// Returns a datum consisting of the encrypted encoding of three characters in the array chars
 unsigned int encode_chars(const unsigned char * const plain_chars) {
-    return 0;
+    //get the encrypted encoding of three characters in the array chars
+    unsigned int encoding = 0;
+    for (int i = 0; i < 3; i++) {
+        encoding = (encoding << 9) | (ones(plain_chars[i]) << 6) | rotate(plain_chars[i], 3);
+    }
+    return encoding;
 }
 
+// Opens input_file and output_file.  Reads ASCII characters from input_file and writes the encrypted encoding of the 
+// text to output_file. Closes both
 void encode_file(const char * const input_file, const char * const output_file) {
     FILE * input = fopen(input_file, "r");
     if (input == NULL) {
@@ -28,6 +44,16 @@ void encode_file(const char * const input_file, const char * const output_file) 
         printf("Error: cannot open file %s\n", output_file);
         return;
     }
+
+    //read the input file and write the encrypted encoding of the text to the output file
+    unsigned char plain_chars[3];
+    while (fread(plain_chars, sizeof(unsigned char), 3, input) == 3) {
+        unsigned int encoding = encode_chars(plain_chars);
+        fwrite(&encoding, sizeof(unsigned int), 1, output);
+    }
+
+    fclose(input);
+    fclose(output);
 }
 
 int main(int argc, char ** argv) {
