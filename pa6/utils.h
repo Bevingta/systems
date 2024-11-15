@@ -1,3 +1,6 @@
+// Andrew Bevington / Gleidson De Sousa
+// bevingta@bc.edu  / desousag@bc.edu
+
 #ifndef UTILS_H
 #define UTILS_H
 

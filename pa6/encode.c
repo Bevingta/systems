@@ -1,3 +1,6 @@
+// Andrew Bevington / Gleidson De Sousa
+// bevingta@bc.edu  / desousag@bc.edu
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils.h"
@@ -59,7 +62,7 @@ unsigned int encode_chars(const unsigned char* const plain_chars) {
 void encode_file(const char* const input_file, const char* const output_file) {
     FILE* in = fopen_checked(input_file, "r");
     FILE* out = fopen_checked(output_file, "wb");
-    
+   
     unsigned char buffer[CHARS_PER_INT];
     int chars_read;
     
@@ -99,10 +102,10 @@ void encode_file(const char* const input_file, const char* const output_file) {
 
 int main(int argc, char** argv) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <file-to-read> <file-to-write>\n", argv[0]);
-        return 1;
+        fprintf(stderr, "Usage: %s <input-plaintext-file> <output-ciphertext-file>\n", argv[0]);
+        return EXIT_FAILURE;
     }
     
     encode_file(argv[1], argv[2]);
-    return 0;
+    return EXIT_SUCCESS;
 }
