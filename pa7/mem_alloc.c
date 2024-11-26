@@ -1,5 +1,4 @@
 #include "mem_alloc.h"
-#include <stdio.h>
 #include <sys/mman.h>
 
 Header *free_list = NULL;
@@ -125,8 +124,9 @@ void *mem_alloc(size_t requested_size) {
 }
 
 void mem_free(void *ptr) {
-  if (ptr == NULL)
+  if (ptr == NULL) {
     return;
+  }
 
   Header *header = get_header(ptr);
   set_free(header);
