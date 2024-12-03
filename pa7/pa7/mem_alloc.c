@@ -1,10 +1,11 @@
+// Andrew Bevington / Gleidson De Sousa
+// bevingta@bc.edu  / desousag@bc.edu
+
 #define _GNU_SOURCE
 #include "mem_alloc.h"
-#include <sys/mman.h>
 
 Header *free_list = NULL;
 
-// Helper functions
 int is_allocated(Header *header) { return header->size & 1; }
 
 int is_free(Header *header) { return !(header->size & 1); }
@@ -23,7 +24,6 @@ int same_page(Header *h1, Header *h2) {
   return ((size_t)h1 & ~0xFFF) == ((size_t)h2 & ~0xFFF);
 }
 
-// Debug functions
 void print_header(Header *header) {
   printf("        Addr: %p\n", (void *)header);
   printf("        Size: %lu\n", get_size(header));
@@ -44,7 +44,6 @@ void print_list() {
   printf("\n");
 }
 
-// Core functions
 int mem_init() {
   void *memory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE,
                       MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -96,7 +95,6 @@ void *mem_alloc(size_t requested_size) {
     while (current != NULL) {
         if (!is_allocated(current) && get_size(current) >= aligned_size) {
             if (get_size(current) >= aligned_size + sizeof(Header) + WORD_SIZE) {
-                // Split the block
                 Header *new_header = 
                     (Header *)((char *)current + sizeof(Header) + aligned_size);
                 new_header->size = get_size(current) - aligned_size - sizeof(Header);
@@ -135,7 +133,6 @@ void mem_free(void *ptr) {
     Header *header = get_header(ptr);
     set_free(header);
 
-    // Try to coalesce with next block
     if (header->next != NULL && !is_allocated(header->next) &&
         same_page(header, header->next)) {
         Header *next = header->next;
@@ -146,7 +143,6 @@ void mem_free(void *ptr) {
         }
     }
 
-    // Try to coalesce with previous block
     if (header->previous != NULL && !is_allocated(header->previous) &&
         same_page(header, header->previous)) {
         Header *prev = header->previous;
@@ -158,9 +154,7 @@ void mem_free(void *ptr) {
         header = prev;
     }
 
-    // Check if entire page is free
     if (get_size(header) == PAGE_SIZE - sizeof(Header)) {
-        // Count how many total pages we have
         Header *current = free_list;
         int total_pages = 0;
         while (current != NULL) {
@@ -168,14 +162,12 @@ void mem_free(void *ptr) {
             current = current->next;
         }
 
-        // Handle single page case
         if (total_pages == 1) {
             munmap(header, PAGE_SIZE);
             free_list = NULL;
             return;
         }
 
-        // Multiple pages - unmap this one if it's entirely free
         if (header == free_list) {
             free_list = header->next;
             if (free_list != NULL) {
