@@ -65,12 +65,18 @@ void multiply_chunk(const double * const a, const double * const b, double * con
   }
 }
 
+void multiply_parallel_threads(const double * const a, const double * const b, double * const c, const int dim, const int num_workers) {
+  num_threads = num_workers - 1;
+
+}
+
 void multiply_parallel_processes(const double * const a, const double * const b, double * const c, const int dim, const int num_workers) {
 
     int chunk_size = dim / num_workers;
+    int num_procs = num_workers - 1;
 
     int i = 0;
-    for (; i < NUM_WORKERS - 1; i++) {
+    for (; i < num_procs; i++) {
         pid_t pid = fork_checked();
                 if (!pid) {
             //debugging print
