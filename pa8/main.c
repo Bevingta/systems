@@ -179,8 +179,9 @@ int main() {
   init_matrix(a, DIM);
   init_matrix(b, DIM);
 
-  multiply_serial(a, b, c2, DIM);
-  multiply_parallel_processes(a, b, c, DIM, NUM_WORKERS);
+  //Replaced multiply_serial and multiply_parallel_processes with calls to run_and_time funcs
+  run_and_time(multiply_serial, a, b, c2, NULL, DIM, "serial", NUM_WORKERS, false);
+  run_and_time(multiply_parallel_processes, a, b, c, c2, DIM, "parallel_processes", NUM_WORKERS, true);
 
   if (verify(c, c2, DIM) == SUCCESS) {
     printf("Matrices are equal.\n");
