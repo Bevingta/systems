@@ -1,14 +1,14 @@
-#define DIM 4
+#define DIM 1024 
 #define NUM_WORKERS 4
 #define SUCCESS 0
 #define FAILURE -1
 
-typedef struct alias {
-  const double * const a;
-  const double * const b;
-  double * const c;
-  const int dim;
-  const int num_workersr;
-} multiply_function;
+typedef void (*multiply_function)(const double * const, const double * const, double * const, const int, const int);
 
-
+typedef struct {
+    const double* a;
+    const double* b;
+    double* c;
+    int row_start;
+    int chunk_size;
+} ThreadArgs;
