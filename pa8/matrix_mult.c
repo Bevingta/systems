@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -97,10 +98,6 @@ void multiply_parallel_threads(const double* const a, const double* const b, dou
         thread_args[i].c = c;
         thread_args[i].row_start = i * chunk_size;
         thread_args[i].chunk_size = chunk_size;
-        
-        // Debugging print
-        printf("Worker %d starting at row %d to row %d\n", 
-               i, i * chunk_size, chunk_size + i * chunk_size);
                
         pthread_create(&threads[i], NULL, multiply_chunk_thread, &thread_args[i]);
     }
@@ -120,10 +117,11 @@ void multiply_parallel_threads(const double* const a, const double* const b, dou
     
     free(threads);
     free(thread_args);
-    printf("Computation complete.\n");
 }
 
 void multiply_parallel_processes(const double * const a, const double * const b, double * const c, const int dim, const int num_workers) {
+
+    void * c_shared = mmap_checked(dim);
 
     int chunk_size = dim / num_workers;
     int num_procs = num_workers - 1;
@@ -132,16 +130,18 @@ void multiply_parallel_processes(const double * const a, const double * const b,
     for (; i < num_procs; i++) {
         pid_t pid = fork_checked();
                 if (!pid) {
-            //debugging print
-            printf("Worker %d starting at row %d to row %d\n", i, i * chunk_size, chunk_size + i * chunk_size);
-
-            multiply_chunk(a, b, c, i * chunk_size, chunk_size);
+            multiply_chunk(a, b, c_shared, i * chunk_size, chunk_size);
             exit(EXIT_SUCCESS);
         }
     }
-    multiply_chunk(a, b, c, i * chunk_size, dim - i * chunk_size);
+    multiply_chunk(a, b, c_shared, i * chunk_size, dim - i * chunk_size);
     while (wait(NULL) > 0);
-    printf("Computation complete.\n");
+
+    for (int i = 0; i < dim * dim; i++) {
+        c[i] = ((double *)c_shared)[i];
+    }
+
+    munmap_checked(c_shared, dim);
 }
 
 void multiply_serial(const double * const a, const double * const b, double * const c, const int dim, const int num_workers)
@@ -176,7 +176,7 @@ struct timeval time_diff(struct timeval *start, struct timeval *end) {
 void print_elapsed_time(struct timeval *start, struct timeval *end, const char * const name) {
     struct timeval diff = time_diff(start, end);
     
-    printf("The %s algorithm took ", name);
+    printf("Time elapsed for %s: ", name);
     
     // Handle seconds
     if (diff.tv_sec > 0) {
@@ -196,9 +196,9 @@ void print_elapsed_time(struct timeval *start, struct timeval *end, const char *
 
 void print_verification(const double * const m1, const double * const m2, const int dim, const char * const name) {
     if (verify(m1, m2, dim) == SUCCESS) {
-        printf("The %s algorithm produced the correct result\n", name);
+        printf("Verification for %s: success.\n", name);
     } else {
-        printf("The %s algorithm produced an incorrect result\n", name);
+        printf("Verification for %s: failure.\n", name);
     }
 }
 
@@ -214,9 +214,14 @@ void run_and_time(
     const bool verify_result
 ) {
     struct timeval start, end;
-    
-    printf("\nRunning %s multiplication algorithm...\n", name);
-    
+   
+    if (num_workers == 1) {
+      printf("Algorithm: %s with %d worker.\n", name, num_workers);
+    }
+    else {
+      printf("Algorithm: %s with %d workers.\n", name, num_workers);
+    }
+
     // Get start time
     gettimeofday(&start, NULL);
     
@@ -233,4 +238,7 @@ void run_and_time(
     if (verify_result) {
         print_verification(c, gold, dim, name);
     }
+
+    printf("\n");
+
 }
