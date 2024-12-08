@@ -108,6 +108,63 @@ void init_matrix(double * matrix, int dim) {
   printf("\n");
 }
 
+//TIMING AND PRINTING
+
+struct timeval time_diff(struct timeval *start, struct timeval *end) {
+    struct timeval diff;
+    diff.tv_sec = end->tv_sec - start->tv_sec;
+    diff.tv_usec = end->tv_usec - start->tv_usec;
+
+    // Handle case where microseconds subtraction is negative
+    if (diff.tv_usec < 0) {
+        diff.tv_sec -= 1;
+        diff.tv_usec += 1000000;
+    }
+
+    return diff;
+}
+
+void print_elapsed_time(struct timeval *start, struct timeval *end, const char * const name) {
+    struct timeval elapsed = time_diff(start, end);
+    printf("%s took %ld second%s and %ld microsecond%s\n",
+           name,
+           (long)elapsed.tv_sec, elapsed.tv_sec == 1 ? "" : "s",
+           (long)elapsed.tv_usec, elapsed.tv_usec == 1 ? "" : "s");
+}
+
+void print_verification(const double * const m1, const double * const m2, const int dim, const char * const name) {
+    int result = verify(m1, m2, dim);
+    printf("%s result verification: %s\n", name, result == SUCCESS ? "SUCCESS" : "FAILURE");
+}
+
+void run_and_time(
+    multiply_function multiply_matrices,
+    const double * const a,
+    const double * const b,
+    double * const c,
+    const double * const gold,
+    const int dim,
+    const char * const name,
+    const int num_workers,
+    const bool verify_result
+) {
+    struct timeval start, end;
+
+    printf("Running %s matrix multiplication \n", name);
+
+    gettimeofday(&start, NULL);
+
+    multiply_matrices(a, b, c, dim, num_workers);
+
+    gettimeofday(&end, NULL);
+
+    print_elapsed_time(&start, &end, name);
+
+    if (verify_result) {
+        print_verification(c, gold, dim, name);
+    }
+}
+
 int main() {
   double a[DIM * DIM];
   double b[DIM * DIM];
