@@ -163,6 +163,15 @@ void run_and_time(
     if (verify_result) {
         print_verification(c, gold, dim, name);
     }
+
+    //TODO: DELETE THIS
+    printf("testing my timing functions..\n");
+    printf("Matrix A:\n");
+    print_matrix(a, dim);
+    printf("Matrix B:\n");
+    print_matrix(b, dim);
+    printf("Result Matrix C:\n");
+    print_matrix(c, dim);
 }
 
 int main() {
@@ -179,6 +188,7 @@ int main() {
   init_matrix(a, DIM);
   init_matrix(b, DIM);
 
+  //TODO: REVIEW THIS
   //Replaced multiply_serial and multiply_parallel_processes with calls to run_and_time funcs
   run_and_time(multiply_serial, a, b, c2, NULL, DIM, "serial", NUM_WORKERS, false);
   run_and_time(multiply_parallel_processes, a, b, c, c2, DIM, "parallel_processes", NUM_WORKERS, true);
@@ -186,7 +196,7 @@ int main() {
   if (verify(c, c2, DIM) == SUCCESS) {
     printf("Matrices are equal.\n");
     return EXIT_SUCCESS;
-  print_matrix(c2, DIM);  } else {
+    print_matrix(c2, DIM);  } else {
     printf("Matrices are not equal.\n");
     printf("Matrix C:\n");
     print_matrix(c, DIM);
