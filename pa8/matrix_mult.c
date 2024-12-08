@@ -155,7 +155,6 @@ void init_matrix(double * matrix, int dim) {
       matrix[i * dim + j - 1] = i * dim + j;
     }
   }
-  int matrix_length = dim * dim;
 }
 
 struct timeval time_diff(struct timeval *start, struct timeval *end) {
